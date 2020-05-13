@@ -6,8 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class Character : MonoBehaviour
 {
-
 	[SerializeField] public float m_JumpForce;							// Amount of force added when the player jumps.
+	[SerializeField] public float m_JumpConstant;							// Amount of force added when the player jumps.
 	[SerializeField] private Transform m_GroundCheck;							// A position marking where to check if the player is grounded.
 
 	public float k_GroundedRadius = .2f; // Radius of the overlap circle to determine if grounded
@@ -17,6 +17,7 @@ public class Character : MonoBehaviour
 	private Vector2 velocity = Vector2.zero;
 	public float limitFallSpeed = 25f; // Limit fall speed
 	public BoxCollider2D physicsBox ;
+	public int layer;
 
 	public bool canDoubleJump = true; //If player can double jump
 	[SerializeField] public float m_DashForce = 1f;
@@ -26,7 +27,7 @@ public class Character : MonoBehaviour
 	public float airAccel;
 	public float maxAirSpeed;
 
-	private Animator animator;
+	public Animator animator;
 
 	[Header("Events")]
 	[Space]
@@ -42,6 +43,9 @@ public class Character : MonoBehaviour
     void OnCollisionExit2D(Collision2D collision){
     	currentState.OnCollisionExit2D(collision);
     }
+    void OnCollisionStay2D(Collision2D Collision) { 
+		currentState.OnCollisionStay2D(Collision);
+	}
 
 	private void Awake()
 	{
@@ -49,6 +53,7 @@ public class Character : MonoBehaviour
 		animator = GetComponent<Animator>();
 		controller = new ControllerInputs(this);
 		physicsBox = GetComponent<BoxCollider2D>();
+		layer = gameObject.layer;
 		SetState(new AirState(this));
 	}
 

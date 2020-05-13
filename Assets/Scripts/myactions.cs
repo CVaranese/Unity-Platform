@@ -293,6 +293,17 @@ public class @Myactions : IInputActionCollection, IDisposable
                     ""action"": ""Jump"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ee50a819-e567-46a9-b060-1d444ea24ffb"",
+                    ""path"": ""<Linux::Logic3::RTS5182CardReader>/TriggerRight"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },

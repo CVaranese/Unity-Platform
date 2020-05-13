@@ -12,24 +12,27 @@ public class DashingState : State
     private bool dashEnded = false;
     private Vector3 velocity = Vector3.zero;
     private Vector3 targetVelocity = Vector3.zero;
-    private float movementSmoothing = .05f;
 
     public DashingState(Character character) : base(character){
     }
 
     public override void Tick(){
-        if (dashEnded){
-            character.SetState(new WalkingState(character));
+        if (dashEnded) {
+            if (character.controller.moveAxis.x == 0){
+                character.SetState(new IdleState(character));
+            } else {
+                character.SetState(new WalkingState(character));
+            }
         } else {
             targetVelocity = new Vector2(character.controller.moveAxis.x * character.m_DashForce, 0);
-            targetVelocity = Vector3.SmoothDamp(character.m_Rigidbody2D.velocity, targetVelocity, ref velocity, movementSmoothing);
+            targetVelocity = Vector3.SmoothDamp(character.m_Rigidbody2D.velocity, targetVelocity, ref velocity, character.controller.movementTraction);
             character.m_Rigidbody2D.velocity = targetVelocity;
         }
     }
 
     public override void OnStateEnter(){
-    	animator = character.GetComponent<Animator>();
-        animator.SetBool("IsDashing", true);
+        character.animator.Play("Dash");
+
         int moveDirection = (int) (character.controller.moveAxis.x / Math.Abs(character.controller.moveAxis.x));
         if ((moveDirection > 0) != character.m_FacingRight){
             character.Flip();
@@ -45,10 +48,7 @@ public class DashingState : State
 
     public override void OnJump()
     {
-        character.m_Rigidbody2D.AddForce(new Vector2(0f, character.m_JumpForce));
-        character.m_Grounded = false;
-        character.canDoubleJump = true;
-        character.SetState(new AirState(character));
+        GroundedJump();
     }
 
     public override void OnMove(){

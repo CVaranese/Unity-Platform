@@ -11,7 +11,10 @@ public class ControllerInputs
     public Myactions controls;
     public Vector2 prevMove = Vector2.zero;
     public Vector2 moveAxis = Vector2.zero;
-    private float smashTurnThresh = .4f;
+    public float smashStickThresh = .4f;
+
+    public float movementEpsilon = .01f;
+    public float movementTraction = .05f;
 
     public ControllerInputs(Character character){
         this.character = character;
@@ -49,14 +52,18 @@ public class ControllerInputs
     }
 
     public void OnMove(InputAction.CallbackContext context){
-        //Debug.Log(context.ReadValue<Vector2>());
         moveAxis = context.ReadValue<Vector2>();
-        if ((Math.Abs(moveAxis.x - prevMove.x) > smashTurnThresh) &&
-             (Math.Abs(moveAxis.x) > smashTurnThresh)){
-            character.SmashStick();
+        // Abs change above thresh
+        // new pos above dash thresh
+        // 
+        if ((Math.Abs(moveAxis.x - prevMove.x) > smashStickThresh) &&
+            (Math.Abs(moveAxis.x) > smashStickThresh)){ 
+            if ((Math.Abs(moveAxis.x) > Math.Abs(prevMove.x)) ||
+                (moveAxis.x * prevMove.x < 0)){
+                    character.SmashStick();
+             }
+        } else {
+           character.OnMove();
         }
-        character.OnMove();
-        
-        //Debug.Log("Moving!");   
     }
 }

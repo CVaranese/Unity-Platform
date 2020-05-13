@@ -12,30 +12,25 @@ public class WalkingState : State
     private bool dashEnded = false;
     private Vector3 velocity = Vector3.zero;
     private Vector3 targetVelocity = Vector3.zero;
-    private float movementSmoothing = .05f;
+    private float movementSmoothing = .025f;
 
     public WalkingState(Character character) : base(character){
     }
 
     public override void Tick(){
-        if ((character.controller.moveAxis.x > 0) != character.m_FacingRight){
-            character.Flip();
-        }
-
-        
-
-        targetVelocity = new Vector2(character.controller.moveAxis.x * (character.m_DashForce / .8f), 0);
-        targetVelocity = Vector3.SmoothDamp(character.m_Rigidbody2D.velocity, targetVelocity, ref velocity, movementSmoothing);
+        targetVelocity = new Vector2(character.controller.moveAxis.x * (character.m_DashForce * .8f), 0);
+        targetVelocity = Vector3.SmoothDamp(character.m_Rigidbody2D.velocity, targetVelocity, ref velocity, character.controller.movementTraction);
         character.m_Rigidbody2D.velocity = targetVelocity;
-
-        if (Math.Abs(targetVelocity.x) < .05){
+        if (Mathf.Abs(targetVelocity.x) < character.controller.movementEpsilon){
             character.SetState(new IdleState(character));
-        }
+        } else if ((targetVelocity.x > 0) != character.m_FacingRight){
+            character.Flip();
+        }   
     }
 
     public override void OnStateEnter(){
-    	animator = character.GetComponent<Animator>();
-        animator.SetBool("IsRunning", true);
+        character.animator.Play("Run");
+        targetVelocity = Vector3.zero;
     }
 
     public override void OnStateExit(){
@@ -43,10 +38,7 @@ public class WalkingState : State
 
     public override void OnJump()
     {
-        character.m_Rigidbody2D.AddForce(new Vector2(0f, character.m_JumpForce));
-        character.m_Grounded = false;
-        character.canDoubleJump = true;
-        character.SetState(new AirState(character));
+        GroundedJump();
     }
 
     public override void OnMove(){
